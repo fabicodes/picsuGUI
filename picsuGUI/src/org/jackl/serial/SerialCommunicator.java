@@ -9,5 +9,5 @@ package org.jackl.serial;
  * @author Fabian
  */
 public class SerialCommunicator {
-    
+    //NOTHING HERE TO SEE YET ;)
 }
