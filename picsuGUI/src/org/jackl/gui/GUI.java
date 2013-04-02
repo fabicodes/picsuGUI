@@ -35,7 +35,7 @@ public class GUI extends javax.swing.JFrame {
         {
             int value = (int) (volt * 100) / 5;
             System.out.println("Filter okay\nValue: " + value);
-            jSlider1.setValue(value);
+            voltageSlider.setValue(value);
             return value;
         }
         return -1;
@@ -50,61 +50,62 @@ public class GUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        voltageTextField = new javax.swing.JTextField();
+        currentTextField = new javax.swing.JTextField();
+        mALabel = new javax.swing.JLabel();
+        voltLabel = new javax.swing.JLabel();
+        voltageLabel = new javax.swing.JLabel();
+        currentLabel = new javax.swing.JLabel();
+        voltageSlider = new javax.swing.JSlider();
+        onOffToggleButton = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PICSU GUI");
 
-        jTextField1.setBackground(new java.awt.Color(255, 255, 153));
-        jTextField1.setColumns(4);
-        jTextField1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jTextField1.setText("6.00");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        voltageTextField.setBackground(new java.awt.Color(255, 255, 153));
+        voltageTextField.setColumns(4);
+        voltageTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        voltageTextField.setText("6.00");
+        voltageTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                voltageTextFieldActionPerformed(evt);
             }
         });
 
-        jTextField2.setBackground(new java.awt.Color(255, 255, 153));
-        jTextField2.setColumns(4);
-        jTextField2.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jTextField2.setText("2000");
+        currentTextField.setEditable(false);
+        currentTextField.setBackground(new java.awt.Color(255, 255, 153));
+        currentTextField.setColumns(4);
+        currentTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        currentTextField.setText("2000");
 
-        jLabel1.setLabelFor(jTextField2);
-        jLabel1.setText("mA");
+        mALabel.setLabelFor(currentTextField);
+        mALabel.setText("mA");
 
-        jLabel2.setLabelFor(jTextField1);
-        jLabel2.setText("V");
+        voltLabel.setLabelFor(voltageTextField);
+        voltLabel.setText("V");
 
-        jLabel3.setText("Voltage");
+        voltageLabel.setText("Voltage");
 
-        jLabel4.setText("Current");
+        currentLabel.setText("Current");
 
-        jSlider1.setMajorTickSpacing(20);
-        jSlider1.setMaximum(240);
-        jSlider1.setMinimum(20);
-        jSlider1.setMinorTickSpacing(5);
-        jSlider1.setPaintTicks(true);
-        jSlider1.setToolTipText("");
-        jSlider1.setValue(120);
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+        voltageSlider.setMajorTickSpacing(20);
+        voltageSlider.setMaximum(240);
+        voltageSlider.setMinimum(20);
+        voltageSlider.setMinorTickSpacing(5);
+        voltageSlider.setPaintTicks(true);
+        voltageSlider.setToolTipText("");
+        voltageSlider.setValue(120);
+        voltageSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider1StateChanged(evt);
+                voltageSliderStateChanged(evt);
             }
         });
 
-        jToggleButton1.setBackground(new java.awt.Color(255, 255, 255));
-        jToggleButton1.setText("Off");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        onOffToggleButton.setBackground(new java.awt.Color(255, 255, 255));
+        onOffToggleButton.setText("Off");
+        onOffToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                onOffToggleButtonActionPerformed(evt);
             }
         });
 
@@ -115,26 +116,26 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(voltageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(voltageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel2))
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(voltLabel))
+                            .addComponent(voltageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(onOffToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(currentTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1)
+                                .addComponent(mALabel)
                                 .addGap(0, 2, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(1, 1, 1)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addComponent(currentLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -144,53 +145,53 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4))
+                            .addComponent(voltageLabel)
+                            .addComponent(currentLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1)))
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(voltageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(voltLabel)
+                            .addComponent(currentTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mALabel)))
+                    .addComponent(onOffToggleButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addComponent(voltageSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
-        double value = (jSlider1.getValue() * 5) / 100.;
-        jTextField1.setText(f.format(value));
-    }//GEN-LAST:event_jSlider1StateChanged
+    private void voltageSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_voltageSliderStateChanged
+        double value = (voltageSlider.getValue() * 5) / 100.;
+        voltageTextField.setText(f.format(value));
+    }//GEN-LAST:event_voltageSliderStateChanged
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        if (jToggleButton1.isSelected()) {
-            jToggleButton1.setText("On ");
+    private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
+        if (onOffToggleButton.isSelected()) {
+            onOffToggleButton.setText("On ");
         } else {
-            jToggleButton1.setText("Off");
+            onOffToggleButton.setText("Off");
         }
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    }//GEN-LAST:event_onOffToggleButtonActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        String text = jTextField1.getText().trim().replace(",", "."); // Replace , with . to fix compatibility with EU Comma
+    private void voltageTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltageTextFieldActionPerformed
+        String text = voltageTextField.getText().trim().replace(",", "."); // Replace , with . to fix compatibility with EU Comma
         if (text.contains(".")) {
             if (text.indexOf(".") + 1 <= text.length() - 3) {
                 text = text.substring(0, text.length() - 1); //Trim Text if it's too long (eg. 6.255)
             }
         }
-        jTextField1.setText(f.format(setVoltageSlider(Float.parseFloat(text)) * 0.05));
-    }//GEN-LAST:event_jTextField1ActionPerformed
+        voltageTextField.setText(f.format(setVoltageSlider(Float.parseFloat(text)) * 0.05));
+    }//GEN-LAST:event_voltageTextFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JLabel currentLabel;
+    private javax.swing.JTextField currentTextField;
+    private javax.swing.JLabel mALabel;
+    private javax.swing.JToggleButton onOffToggleButton;
+    private javax.swing.JLabel voltLabel;
+    private javax.swing.JLabel voltageLabel;
+    private javax.swing.JSlider voltageSlider;
+    private javax.swing.JTextField voltageTextField;
     // End of variables declaration//GEN-END:variables
 }
