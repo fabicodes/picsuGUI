@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 public class GUI extends javax.swing.JFrame {
 
     private DecimalFormat f;
+    private boolean voltageChanged;
 
     public GUI() {
         try {
@@ -27,6 +28,7 @@ public class GUI extends javax.swing.JFrame {
 
     private void initAttributes() {
         f = new DecimalFormat("#0.00");
+        voltageChanged = true;
     }
 
     private int setVoltageSlider(double volt) {
@@ -36,9 +38,38 @@ public class GUI extends javax.swing.JFrame {
             int value = (int) (volt * 100) / 5;
             System.out.println("Filter okay\nValue: " + value);
             voltageSlider.setValue(value);
+            voltageChanged = true;
             return value;
         }
         return -1;
+    }
+
+    public boolean hasVoltageChanged() {
+        if (voltageChanged) {
+            voltageChanged = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setVoltage(double volt) {
+        if (volt >= 0 && volt <= 12) {
+            setVoltageSlider(volt);
+            voltageTextField.setText(f.format(volt));
+            voltageChanged = true;
+        }
+    }
+
+    public double getVoltage() {
+        if (voltageSlider.getValue() * 5 / 100 == Double.parseDouble(voltageTextField.getText())) {
+            return voltageSlider.getValue() * 5 / 100;
+        }
+        return -1;
+    }
+
+    public void setCurrent(int current) {
+        currentTextField.setText(current + "");
     }
 
     /**
@@ -165,6 +196,7 @@ public class GUI extends javax.swing.JFrame {
     private void voltageSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_voltageSliderStateChanged
         double value = (voltageSlider.getValue() * 5) / 100.;
         voltageTextField.setText(f.format(value));
+        voltageChanged = true;
     }//GEN-LAST:event_voltageSliderStateChanged
 
     private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
@@ -183,6 +215,7 @@ public class GUI extends javax.swing.JFrame {
             }
         }
         voltageTextField.setText(f.format(setVoltageSlider(Float.parseFloat(text)) * 0.05));
+        voltageChanged = true;
     }//GEN-LAST:event_voltageTextFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel currentLabel;
