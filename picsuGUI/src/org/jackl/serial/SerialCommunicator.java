@@ -29,6 +29,7 @@ public class SerialCommunicator {
     private Enumeration ports;
     private SerialPort serialPort;
     private boolean connected;
+    private String lastSent;
     private String input;
     private GUI gui;
 
@@ -124,9 +125,14 @@ public class SerialCommunicator {
         }
         try {
             outputStream.write(msg.getBytes());
+            lastSent = msg;
         } catch (IOException e) {
             System.out.println("Error while sending");
         }
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     private void serialPortDataAvailable() {
@@ -135,22 +141,49 @@ public class SerialCommunicator {
             int num;
             while (inputStream.available() > 0) {
                 num = inputStream.read(data, 0, data.length);
-                parseInput(new String(data, 0, num));
+                collectInput(new String(data, 0, num));
             }
         } catch (IOException e) {
             System.out.println("Error reading received Data");
         }
     }
 
-    private void parseInput(String txt) {
+    private void collectInput(String txt) {
         input += txt;
         if (input.length() >= 100) {
             input = input.substring(0, 99);
         }
-        if (input.contains("\r\n")) {
+        if (input.contains("\r")) {
             System.out.println("Received: " + input.trim());
+            parseInput(input.trim());
             input = "";
         }
+    }
+
+    private void parseInput(String txt) {
+        if (txt.equals("(ack)")) {
+        } else if (txt.equals("(err)")) {
+            System.out.println("There was something wrong with this Command: " + lastSent);
+        } else if (txt.startsWith("(") && txt.length() == 16) {
+            System.out.println("Status Response");
+            parseStatusResponse(txt);
+        }
+        else
+        {
+            System.out.println("Cant be sorted out: " + txt);
+        }
+    }
+    /**
+     * Status Text
+     * (A;B;XX.XX;Y.YY)
+     * A Output Index
+     * B Status Report
+     * xx.xx Voltage Level
+     * Y.YY Current LEvel
+     */
+    private void parseStatusResponse(String txt)
+    {
+        
     }
 
     private class serialPortEventListener implements SerialPortEventListener {

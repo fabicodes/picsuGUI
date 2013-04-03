@@ -17,11 +17,13 @@ import org.jackl.serial.*;
  * @author Fabian
  */
 public class GUI extends javax.swing.JFrame {
+
     private static final String vers = "<tr><td><b>Version:</b></td><td>0.1 Non functional alpha</td></tr>";
     private DecimalFormat f;
     private boolean voltageChanged;
     private SerialCommunicator serial;
-    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr>"+ vers +"</table></html>";
+    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr>" + vers + "</table></html>";
+    private static final int outputIndex = 1;
 
     public GUI() {
         try {
@@ -88,6 +90,7 @@ public class GUI extends javax.swing.JFrame {
             comButtonGroup.remove(b);
             comSelectMenu.remove(b);
         }
+        comButtonGroup.clearSelection();
         if (coms != null && !coms.isEmpty()) {
             for (String c : coms) {
                 JRadioButtonMenuItem tmp = new JRadioButtonMenuItem(c);
@@ -101,6 +104,20 @@ public class GUI extends javax.swing.JFrame {
         }
     }
 
+    private boolean connect() {
+        if (comButtonGroup.getSelection() != null) {
+            boolean out = serial.openSerialPort(((JRadioButtonMenuItem) comButtonGroup.getSelection()).getText());
+            initConnection();
+            return out;
+        }
+        JOptionPane.showMessageDialog(this, "Can't connect because no COM Port is selected", "ERROR", JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
+
+    private void initConnection()
+    {
+        serial.send("*\r");
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -197,6 +214,11 @@ public class GUI extends javax.swing.JFrame {
         settingsMenu.setName(""); // NOI18N
 
         connectMenuItem.setText("Connect");
+        connectMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectMenuItemActionPerformed(evt);
+            }
+        });
         settingsMenu.add(connectMenuItem);
 
         comSelectMenu.setText("Select COM");
@@ -329,6 +351,18 @@ public class GUI extends javax.swing.JFrame {
     private void infoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoMenuItemActionPerformed
         JOptionPane.showMessageDialog(this, aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_infoMenuItemActionPerformed
+
+    private void connectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectMenuItemActionPerformed
+        if (!serial.isConnected()) {
+            if (connect()) {
+                connectMenuItem.setText("Disconnect");
+            }
+        }
+        else{
+            serial.closeSerialPort();
+            connectMenuItem.setText("Connect");
+        }
+    }//GEN-LAST:event_connectMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu aboutMenu;
     private javax.swing.ButtonGroup comButtonGroup;
