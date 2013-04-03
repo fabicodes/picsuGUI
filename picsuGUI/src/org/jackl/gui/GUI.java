@@ -5,7 +5,6 @@
 package org.jackl.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
@@ -18,11 +17,11 @@ import org.jackl.serial.*;
  * @author Fabian
  */
 public class GUI extends javax.swing.JFrame {
-
+    private static final String vers = "<tr><td><b>Version:</b></td><td>0.1 Non functional alpha</td></tr>";
     private DecimalFormat f;
     private boolean voltageChanged;
     private SerialCommunicator serial;
-    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr></table></html>";
+    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr>"+ vers +"</table></html>";
 
     public GUI() {
         try {
