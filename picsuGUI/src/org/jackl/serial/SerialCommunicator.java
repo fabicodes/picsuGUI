@@ -29,6 +29,7 @@ public class SerialCommunicator {
     private Enumeration ports;
     private SerialPort serialPort;
     private boolean connected;
+    private String input;
     private GUI gui;
 
     public SerialCommunicator(GUI gui) {
@@ -110,8 +111,7 @@ public class SerialCommunicator {
                 out.add(serialPortId.getName());
             }
         }
-        if(out.isEmpty())
-        {
+        if (out.isEmpty()) {
             return null;
         }
         return out;
@@ -135,11 +135,21 @@ public class SerialCommunicator {
             int num;
             while (inputStream.available() > 0) {
                 num = inputStream.read(data, 0, data.length);
-                System.out.println("Received: " + new String(data, 0, num));
-//                received.append(new String(data, 0, num));
+                parseInput(new String(data, 0, num));
             }
         } catch (IOException e) {
             System.out.println("Error reading received Data");
+        }
+    }
+
+    private void parseInput(String txt) {
+        input += txt;
+        if (input.length() >= 100) {
+            input = input.substring(0, 99);
+        }
+        if (input.contains("\r\n")) {
+            System.out.println("Received: " + input.trim());
+            input = "";
         }
     }
 
