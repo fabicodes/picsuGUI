@@ -4,8 +4,14 @@
  */
 package org.jackl.gui;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
+import org.jackl.serial.*;
 
 /**
  *
@@ -15,6 +21,8 @@ public class GUI extends javax.swing.JFrame {
 
     private DecimalFormat f;
     private boolean voltageChanged;
+    private SerialCommunicator serial;
+    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr></table></html>";
 
     public GUI() {
         try {
@@ -24,11 +32,13 @@ public class GUI extends javax.swing.JFrame {
         }
         initAttributes();
         initComponents();
+        refreshCOMPorts();
     }
 
     private void initAttributes() {
         f = new DecimalFormat("#0.00");
         voltageChanged = true;
+        serial = new SerialCommunicator(this);
     }
 
     private int setVoltageSlider(double volt) {
@@ -72,6 +82,26 @@ public class GUI extends javax.swing.JFrame {
         currentTextField.setText(current + "");
     }
 
+    private void refreshCOMPorts() {
+        LinkedList<String> coms = serial.getSerialPorts();
+        while (comButtonGroup.getElements().hasMoreElements()) {
+            javax.swing.AbstractButton b = comButtonGroup.getElements().nextElement();
+            comButtonGroup.remove(b);
+            comSelectMenu.remove(b);
+        }
+        if (coms != null && !coms.isEmpty()) {
+            for (String c : coms) {
+                JRadioButtonMenuItem tmp = new JRadioButtonMenuItem(c);
+                comButtonGroup.add(tmp);
+                comSelectMenu.add(tmp);
+            }
+        } else {
+            JRadioButtonMenuItem tmp = new JRadioButtonMenuItem("No COM Port available");
+            comButtonGroup.add(tmp);
+            comSelectMenu.add(tmp);
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -95,6 +125,8 @@ public class GUI extends javax.swing.JFrame {
         settingsMenu = new javax.swing.JMenu();
         connectMenuItem = new javax.swing.JMenuItem();
         comSelectMenu = new javax.swing.JMenu();
+        refreshCOMPortsMenuItem = new javax.swing.JMenuItem();
+        comSelectSeparator = new javax.swing.JPopupMenu.Separator();
         jRadioButtonMenuItem4 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem5 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem6 = new javax.swing.JRadioButtonMenuItem();
@@ -107,6 +139,7 @@ public class GUI extends javax.swing.JFrame {
         setMaximumSize(new java.awt.Dimension(2147483647, 150));
         setMinimumSize(new java.awt.Dimension(326, 150));
 
+        voltageTextField.setEditable(false);
         voltageTextField.setBackground(new java.awt.Color(255, 255, 153));
         voltageTextField.setColumns(4);
         voltageTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
@@ -157,18 +190,29 @@ public class GUI extends javax.swing.JFrame {
         });
 
         jTextField1.setEditable(false);
-        jTextField1.setBackground(new java.awt.Color(0, 255, 0));
+        jTextField1.setBackground(new java.awt.Color(255, 0, 0));
         jTextField1.setColumns(2);
         jTextField1.setToolTipText("");
 
         settingsMenu.setText("Settings");
+        settingsMenu.setName(""); // NOI18N
 
         connectMenuItem.setText("Connect");
         settingsMenu.add(connectMenuItem);
 
         comSelectMenu.setText("Select COM");
 
+        refreshCOMPortsMenuItem.setText("Refresh Ports");
+        refreshCOMPortsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshCOMPortsMenuItemActionPerformed(evt);
+            }
+        });
+        comSelectMenu.add(refreshCOMPortsMenuItem);
+        comSelectMenu.add(comSelectSeparator);
+
         comButtonGroup.add(jRadioButtonMenuItem4);
+        jRadioButtonMenuItem4.setSelected(true);
         jRadioButtonMenuItem4.setText("COM2808");
         comSelectMenu.add(jRadioButtonMenuItem4);
 
@@ -187,6 +231,11 @@ public class GUI extends javax.swing.JFrame {
         aboutMenu.setText("About");
 
         infoMenuItem.setText("Info");
+        infoMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                infoMenuItemActionPerformed(evt);
+            }
+        });
         aboutMenu.add(infoMenuItem);
 
         menuBar.add(aboutMenu);
@@ -256,8 +305,10 @@ public class GUI extends javax.swing.JFrame {
     private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
         if (onOffToggleButton.isSelected()) {
             onOffToggleButton.setText("On ");
+            jTextField1.setBackground(Color.green);
         } else {
             onOffToggleButton.setText("Off");
+            jTextField1.setBackground(Color.red);
         }
     }//GEN-LAST:event_onOffToggleButtonActionPerformed
 
@@ -272,10 +323,18 @@ public class GUI extends javax.swing.JFrame {
         voltageChanged = true;
     }//GEN-LAST:event_voltageTextFieldActionPerformed
 
+    private void refreshCOMPortsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshCOMPortsMenuItemActionPerformed
+        refreshCOMPorts();
+    }//GEN-LAST:event_refreshCOMPortsMenuItemActionPerformed
+
+    private void infoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoMenuItemActionPerformed
+        JOptionPane.showMessageDialog(this, aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_infoMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu aboutMenu;
     private javax.swing.ButtonGroup comButtonGroup;
     private javax.swing.JMenu comSelectMenu;
+    private javax.swing.JPopupMenu.Separator comSelectSeparator;
     private javax.swing.JMenuItem connectMenuItem;
     private javax.swing.JLabel currentLabel;
     private javax.swing.JTextField currentTextField;
@@ -287,6 +346,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel mALabel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JToggleButton onOffToggleButton;
+    private javax.swing.JMenuItem refreshCOMPortsMenuItem;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JLabel voltLabel;
     private javax.swing.JLabel voltageLabel;
