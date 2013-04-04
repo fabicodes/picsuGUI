@@ -21,13 +21,14 @@ public class SerialCommunicator {
 
     private final int baudrate = 9600;
     private final int dataBits = SerialPort.DATABITS_8;
-    private final int stopBits = 0;
+    private final int stopBits = 1;
     private final int parity = SerialPort.PARITY_ODD;
     private CommPortIdentifier serialPortId;
     private OutputStream outputStream;
     private InputStream inputStream;
     private Enumeration ports;
     private SerialPort serialPort;
+    private ValuePoller poller;
     private boolean connected;
     private String lastSent;
     private String input;
@@ -35,6 +36,9 @@ public class SerialCommunicator {
 
     public SerialCommunicator(GUI gui) {
         this.gui = gui;
+        poller = new ValuePoller(this);
+        poller.start();
+        poller.pause(true);
     }
 
     public boolean openSerialPort(String portName) {
@@ -84,12 +88,14 @@ public class SerialCommunicator {
         }
 
         connected = true;
+        poller.pause(false);
         return true;
     }
 
     public void closeSerialPort() {
         if (connected == true) {
             System.out.println("Closing Serial Port");
+            poller.pause(true);
             serialPort.close();
             connected = false;
         } else {
@@ -137,26 +143,19 @@ public class SerialCommunicator {
 
     private void serialPortDataAvailable() {
         try {
-            byte[] data = new byte[150];
-            int num;
-            while (inputStream.available() > 0) {
-                num = inputStream.read(data, 0, data.length);
-                collectInput(new String(data, 0, num));
+            byte[] buffer = new byte[1024];
+            int data;
+            int len = 0;
+            while ((data = inputStream.read()) > -1) {
+                if (data == '\r') {
+                    break;
+                }
+                buffer[len++] = (byte) data;
             }
+            System.out.println("Received: " + new String(buffer, 0, len).trim());
+            parseInput(new String(buffer, 0, len).trim());
         } catch (IOException e) {
             System.out.println("Error reading received Data");
-        }
-    }
-
-    private void collectInput(String txt) {
-        input += txt;
-        if (input.length() >= 100) {
-            input = input.substring(0, 99);
-        }
-        if (input.contains("\r")) {
-            System.out.println("Received: " + input.trim());
-            parseInput(input.trim());
-            input = "";
         }
     }
 
@@ -167,23 +166,19 @@ public class SerialCommunicator {
         } else if (txt.startsWith("(") && txt.length() == 16) {
             System.out.println("Status Response");
             parseStatusResponse(txt);
-        }
-        else
-        {
+        } else {
             System.out.println("Cant be sorted out: " + txt);
         }
     }
-    /**
-     * Status Text
-     * (A;B;XX.XX;Y.YY)
-     * A Output Index
-     * B Status Report
-     * xx.xx Voltage Level
-     * Y.YY Current LEvel
-     */
-    private void parseStatusResponse(String txt)
-    {
-        
+
+    private void parseStatusResponse(String txt) {
+        txt = txt.trim();
+        if (Integer.parseInt(txt.substring(1, 2)) == 1) // Check if Output Index == 1
+        {
+            gui.setOutput(txt.substring(3, 4).equals("1"));
+            gui.setVoltage(Double.parseDouble(txt.substring(5, 10)));
+            gui.setCurrent(Double.parseDouble(txt.substring(11, 15)));
+        }
     }
 
     private class serialPortEventListener implements SerialPortEventListener {

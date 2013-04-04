@@ -6,9 +6,13 @@ package org.jackl.gui;
 
 import java.awt.Color;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.LinkedList;
+import java.util.Locale;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import org.jackl.serial.*;
 
@@ -18,12 +22,15 @@ import org.jackl.serial.*;
  */
 public class GUI extends javax.swing.JFrame {
 
-    private static final String vers = "<tr><td><b>Version:</b></td><td>0.1 Non functional alpha</td></tr>";
+    private static final String vers = "<tr><td><b>Version:</b></td><td>0.98 Functional beta</td></tr>";
     private DecimalFormat f;
+    private DecimalFormat s;
     private boolean voltageChanged;
     private SerialCommunicator serial;
-    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr>" + vers + "</table></html>";
+    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr><tr><td><b>Website:</b></td><td><a href='http://fabian.jackl.org'>http://fabian.jackl.org</a></td></tr>" + vers + "</table></html>";
     private static final int outputIndex = 1;
+    private double[] lastCurrentValues;
+    private static final int howManyValues = 10;
 
     public GUI() {
         try {
@@ -33,21 +40,30 @@ public class GUI extends javax.swing.JFrame {
         }
         initAttributes();
         initComponents();
+        Color[] colors = {Color.GREEN,Color.YELLOW,Color.ORANGE,Color.RED};
+        loadBar.setUI(new GradientPalletProgressBarUI(colors));
         refreshCOMPorts();
+        enableComponents(false);
     }
 
     private void initAttributes() {
-        f = new DecimalFormat("#0.00");
+        DecimalFormatSymbols decimalSymbol = new DecimalFormatSymbols(Locale.getDefault());
+        decimalSymbol.setDecimalSeparator('.');
+        decimalSymbol.setGroupingSeparator(',');
+        f = new DecimalFormat("#0.00", decimalSymbol);
+        s = new DecimalFormat("#00.00", decimalSymbol);
         voltageChanged = true;
         serial = new SerialCommunicator(this);
+        lastCurrentValues = new double[howManyValues];
+        for (int i = 0; i < lastCurrentValues.length; i++) {
+            lastCurrentValues[i] = 0;
+        }
     }
 
     private int setVoltageSlider(double volt) {
-        System.out.println("setVoltage(" + volt + ");");
         if (volt >= 0 && volt <= 12) //Filter valid Values
         {
             int value = (int) (volt * 100) / 5;
-            System.out.println("Filter okay\nValue: " + value);
             voltageSlider.setValue(value);
             voltageChanged = true;
             return value;
@@ -66,7 +82,9 @@ public class GUI extends javax.swing.JFrame {
 
     public void setVoltage(double volt) {
         if (volt >= 0 && volt <= 12) {
-            setVoltageSlider(volt);
+            if (!voltageSlider.isFocusOwner()) {
+                setVoltageSlider(volt);
+            }
             voltageTextField.setText(f.format(volt));
             voltageChanged = true;
         }
@@ -79,8 +97,29 @@ public class GUI extends javax.swing.JFrame {
         return -1;
     }
 
-    public void setCurrent(int current) {
-        currentTextField.setText(current + "");
+    public void setCurrent(double current) {
+        if (averageCheckBoxMenuItem.getState()) {
+            for (int i = lastCurrentValues.length - 1; i >= 1; i--) {
+                lastCurrentValues[i] = lastCurrentValues[i - 1];
+            }
+            lastCurrentValues[0] = current;
+            current = 0;
+            for(double d:lastCurrentValues)
+            {
+                current += d;
+            }
+            current = current / lastCurrentValues.length;
+        }
+        currentTextField.setText(f.format(current));
+        loadBar.setValue((int) (current * 100));
+    }
+
+    public void setOutput(boolean on) {
+        if (on) {
+            jTextField1.setBackground(Color.green);
+        } else {
+            jTextField1.setBackground(Color.red);
+        }
     }
 
     private void refreshCOMPorts() {
@@ -94,11 +133,13 @@ public class GUI extends javax.swing.JFrame {
         if (coms != null && !coms.isEmpty()) {
             for (String c : coms) {
                 JRadioButtonMenuItem tmp = new JRadioButtonMenuItem(c);
+                tmp.setActionCommand(c);
                 comButtonGroup.add(tmp);
                 comSelectMenu.add(tmp);
             }
         } else {
             JRadioButtonMenuItem tmp = new JRadioButtonMenuItem("No COM Port available");
+            tmp.setActionCommand("null");
             comButtonGroup.add(tmp);
             comSelectMenu.add(tmp);
         }
@@ -106,18 +147,19 @@ public class GUI extends javax.swing.JFrame {
 
     private boolean connect() {
         if (comButtonGroup.getSelection() != null) {
-            boolean out = serial.openSerialPort(((JRadioButtonMenuItem) comButtonGroup.getSelection()).getText());
-            initConnection();
+            System.out.println(comButtonGroup.getSelection().getActionCommand());
+            boolean out = serial.openSerialPort(comButtonGroup.getSelection().getActionCommand());
             return out;
         }
         JOptionPane.showMessageDialog(this, "Can't connect because no COM Port is selected", "ERROR", JOptionPane.ERROR_MESSAGE);
         return false;
     }
 
-    private void initConnection()
-    {
-        serial.send("*\r");
+    private void enableComponents(boolean enable) {
+        onOffToggleButton.setEnabled(enable);
+        voltageSlider.setEnabled(enable);
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -130,13 +172,14 @@ public class GUI extends javax.swing.JFrame {
         comButtonGroup = new javax.swing.ButtonGroup();
         voltageTextField = new javax.swing.JTextField();
         currentTextField = new javax.swing.JTextField();
-        mALabel = new javax.swing.JLabel();
+        aLabel = new javax.swing.JLabel();
         voltLabel = new javax.swing.JLabel();
         voltageLabel = new javax.swing.JLabel();
         currentLabel = new javax.swing.JLabel();
         voltageSlider = new javax.swing.JSlider();
         onOffToggleButton = new javax.swing.JToggleButton();
         jTextField1 = new javax.swing.JTextField();
+        loadBar = new javax.swing.JProgressBar();
         menuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         connectMenuItem = new javax.swing.JMenuItem();
@@ -146,6 +189,7 @@ public class GUI extends javax.swing.JFrame {
         jRadioButtonMenuItem4 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem5 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem6 = new javax.swing.JRadioButtonMenuItem();
+        averageCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         aboutMenu = new javax.swing.JMenu();
         infoMenuItem = new javax.swing.JMenuItem();
 
@@ -170,10 +214,10 @@ public class GUI extends javax.swing.JFrame {
         currentTextField.setBackground(new java.awt.Color(255, 255, 153));
         currentTextField.setColumns(4);
         currentTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        currentTextField.setText("2000");
+        currentTextField.setText("2.00");
 
-        mALabel.setLabelFor(currentTextField);
-        mALabel.setText("mA");
+        aLabel.setLabelFor(currentTextField);
+        aLabel.setText("A");
 
         voltLabel.setLabelFor(voltageTextField);
         voltLabel.setText("V");
@@ -210,6 +254,11 @@ public class GUI extends javax.swing.JFrame {
         jTextField1.setColumns(2);
         jTextField1.setToolTipText("");
 
+        loadBar.setMaximum(200);
+        loadBar.setOrientation(1);
+        loadBar.setToolTipText("");
+        loadBar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
         settingsMenu.setText("Settings");
         settingsMenu.setName(""); // NOI18N
 
@@ -235,6 +284,8 @@ public class GUI extends javax.swing.JFrame {
         comButtonGroup.add(jRadioButtonMenuItem4);
         jRadioButtonMenuItem4.setSelected(true);
         jRadioButtonMenuItem4.setText("COM2808");
+        jRadioButtonMenuItem4.setToolTipText("");
+        jRadioButtonMenuItem4.setName(""); // NOI18N
         comSelectMenu.add(jRadioButtonMenuItem4);
 
         comButtonGroup.add(jRadioButtonMenuItem5);
@@ -246,6 +297,9 @@ public class GUI extends javax.swing.JFrame {
         comSelectMenu.add(jRadioButtonMenuItem6);
 
         settingsMenu.add(comSelectMenu);
+
+        averageCheckBoxMenuItem.setText("Display Average");
+        settingsMenu.add(averageCheckBoxMenuItem);
 
         menuBar.add(settingsMenu);
 
@@ -270,7 +324,7 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltageSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                    .addComponent(voltageSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(onOffToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -287,30 +341,35 @@ public class GUI extends javax.swing.JFrame {
                                 .addComponent(voltageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mALabel)
+                            .addComponent(aLabel)
                             .addComponent(voltLabel))))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(loadBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(voltageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(voltLabel)
-                            .addComponent(voltageLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(currentTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mALabel)
-                            .addComponent(currentLabel)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(onOffToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addComponent(voltageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(loadBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(voltageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(voltLabel)
+                                    .addComponent(voltageLabel))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(currentTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(aLabel)
+                                    .addComponent(currentLabel)))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(onOffToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(voltageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -321,15 +380,18 @@ public class GUI extends javax.swing.JFrame {
         double value = (voltageSlider.getValue() * 5) / 100.;
         voltageTextField.setText(f.format(value));
         voltageChanged = true;
+        if (!voltageSlider.getValueIsAdjusting()) {
+            serial.send("[v:" + outputIndex + ":" + s.format(value) + "]\r");
+        }
     }//GEN-LAST:event_voltageSliderStateChanged
 
     private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
         if (onOffToggleButton.isSelected()) {
             onOffToggleButton.setText("On ");
-            jTextField1.setBackground(Color.green);
+            serial.send("[r:" + outputIndex + "]\r");
         } else {
             onOffToggleButton.setText("Off");
-            jTextField1.setBackground(Color.red);
+            serial.send("[s:" + outputIndex + "]\r");
         }
     }//GEN-LAST:event_onOffToggleButtonActionPerformed
 
@@ -356,15 +418,20 @@ public class GUI extends javax.swing.JFrame {
         if (!serial.isConnected()) {
             if (connect()) {
                 connectMenuItem.setText("Disconnect");
+                enableComponents(true);
+                serial.send("*\r");
             }
-        }
-        else{
+        } else {
+            serial.send("*\r");
             serial.closeSerialPort();
             connectMenuItem.setText("Connect");
+            enableComponents(false);
         }
     }//GEN-LAST:event_connectMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel aLabel;
     private javax.swing.JMenu aboutMenu;
+    private javax.swing.JCheckBoxMenuItem averageCheckBoxMenuItem;
     private javax.swing.ButtonGroup comButtonGroup;
     private javax.swing.JMenu comSelectMenu;
     private javax.swing.JPopupMenu.Separator comSelectSeparator;
@@ -376,7 +443,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem5;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem6;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JLabel mALabel;
+    private javax.swing.JProgressBar loadBar;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JToggleButton onOffToggleButton;
     private javax.swing.JMenuItem refreshCOMPortsMenuItem;
