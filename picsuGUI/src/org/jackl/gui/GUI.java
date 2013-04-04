@@ -10,10 +10,9 @@ import java.text.DecimalFormatSymbols;
 import java.util.LinkedList;
 import java.util.Locale;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import org.jackl.Settings;
 import org.jackl.serial.*;
 
 /**
@@ -22,15 +21,11 @@ import org.jackl.serial.*;
  */
 public class GUI extends javax.swing.JFrame {
 
-    private static final String vers = "<tr><td><b>Version:</b></td><td>0.98 Functional beta</td></tr>";
     private DecimalFormat f;
     private DecimalFormat s;
     private boolean voltageChanged;
     private SerialCommunicator serial;
-    private static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td></tr><tr><td><b>Website:</b></td><td><a href='http://fabian.jackl.org'>http://fabian.jackl.org</a></td></tr>" + vers + "</table></html>";
-    private static final int outputIndex = 1;
     private double[] lastCurrentValues;
-    private static final int howManyValues = 10;
 
     public GUI() {
         try {
@@ -40,7 +35,7 @@ public class GUI extends javax.swing.JFrame {
         }
         initAttributes();
         initComponents();
-        Color[] colors = {Color.GREEN,Color.YELLOW,Color.ORANGE,Color.RED};
+        Color[] colors = {Color.GREEN, Color.YELLOW, Color.ORANGE, Color.RED};
         loadBar.setUI(new GradientPalletProgressBarUI(colors));
         refreshCOMPorts();
         enableComponents(false);
@@ -54,7 +49,7 @@ public class GUI extends javax.swing.JFrame {
         s = new DecimalFormat("#00.00", decimalSymbol);
         voltageChanged = true;
         serial = new SerialCommunicator(this);
-        lastCurrentValues = new double[howManyValues];
+        lastCurrentValues = new double[Settings.getHowManyValues()];
         for (int i = 0; i < lastCurrentValues.length; i++) {
             lastCurrentValues[i] = 0;
         }
@@ -104,8 +99,7 @@ public class GUI extends javax.swing.JFrame {
             }
             lastCurrentValues[0] = current;
             current = 0;
-            for(double d:lastCurrentValues)
-            {
+            for (double d : lastCurrentValues) {
                 current += d;
             }
             current = current / lastCurrentValues.length;
@@ -381,17 +375,17 @@ public class GUI extends javax.swing.JFrame {
         voltageTextField.setText(f.format(value));
         voltageChanged = true;
         if (!voltageSlider.getValueIsAdjusting()) {
-            serial.send("[v:" + outputIndex + ":" + s.format(value) + "]\r");
+            serial.send("[v:" + Settings.getOutputIndex() + ":" + s.format(value) + "]\r");
         }
     }//GEN-LAST:event_voltageSliderStateChanged
 
     private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
         if (onOffToggleButton.isSelected()) {
             onOffToggleButton.setText("On ");
-            serial.send("[r:" + outputIndex + "]\r");
+            serial.send("[r:" + Settings.getOutputIndex() + "]\r");
         } else {
             onOffToggleButton.setText("Off");
-            serial.send("[s:" + outputIndex + "]\r");
+            serial.send("[s:" + Settings.getOutputIndex() + "]\r");
         }
     }//GEN-LAST:event_onOffToggleButtonActionPerformed
 
@@ -411,7 +405,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_refreshCOMPortsMenuItemActionPerformed
 
     private void infoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoMenuItemActionPerformed
-        JOptionPane.showMessageDialog(this, aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, Settings.aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_infoMenuItemActionPerformed
 
     private void connectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectMenuItemActionPerformed
