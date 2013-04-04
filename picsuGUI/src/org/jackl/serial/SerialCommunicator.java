@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
+import org.jackl.Settings;
 
 /**
  *
@@ -19,10 +20,6 @@ import java.util.TooManyListenersException;
  */
 public class SerialCommunicator {
 
-    private final int baudrate = 9600;
-    private final int dataBits = SerialPort.DATABITS_8;
-    private final int stopBits = 1;
-    private final int parity = SerialPort.PARITY_ODD;
     private CommPortIdentifier serialPortId;
     private OutputStream outputStream;
     private InputStream inputStream;
@@ -31,7 +28,6 @@ public class SerialCommunicator {
     private ValuePoller poller;
     private boolean connected;
     private String lastSent;
-    private String input;
     private GUI gui;
 
     public SerialCommunicator(GUI gui) {
@@ -82,7 +78,7 @@ public class SerialCommunicator {
         }
         serialPort.notifyOnDataAvailable(true);
         try {
-            serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
+            serialPort.setSerialPortParams(Settings.getBaudrate(), Settings.getDataBits(), Settings.getStopBits(), Settings.getParity());
         } catch (UnsupportedCommOperationException e) {
             System.out.println("Couldn't set SerialPort Parameter");
         }
