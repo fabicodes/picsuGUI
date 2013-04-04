@@ -141,15 +141,6 @@ class GradientPalletProgressBarUI extends BasicProgressBarUI {
         int cellSpacing = getCellSpacing();
         // amount of progress to draw
         int amountFull = getAmountFull(b, barRectWidth, barRectHeight);
-        System.out.println("Top: " + b.top);
-        System.out.println("Bottom: " + b.bottom);
-        System.out.println("barRectWidth: " + barRectWidth);
-        System.out.println("progressBarWidth: " + progressBar.getWidth());
-        System.out.println("barRectHeight: " + barRectHeight);
-        System.out.println("progressBarHeight: " + progressBar.getHeight());
-        System.out.println("amountFull: " + amountFull);
-        System.out.println("barRectHeight - amountFull: " + (barRectHeight - amountFull));
-        System.out.println("amountFull - barRectHeight: " + (amountFull - barRectHeight));
         if (progressBar.getOrientation() == JProgressBar.HORIZONTAL) {
             // draw the cells
             float x = amountFull / (float) barRectWidth;
