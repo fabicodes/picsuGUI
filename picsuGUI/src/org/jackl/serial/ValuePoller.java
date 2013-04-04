@@ -4,6 +4,8 @@
  */
 package org.jackl.serial;
 
+import org.jackl.Settings;
+
 /**
  *
  * @author Fabian
@@ -13,7 +15,6 @@ public class ValuePoller extends Thread {
     private boolean finished = false;
     private boolean pause = false;
     private SerialCommunicator serial;
-    private static final int delay = 100;
 
     public ValuePoller(SerialCommunicator serial) {
         this.serial = serial;
@@ -35,7 +36,7 @@ public class ValuePoller extends Thread {
             }
             serial.send("[i]\r");
             try {
-                Thread.sleep(delay);
+                Thread.sleep(Settings.getRefreshDelay());
             } catch (InterruptedException ex) {
                 System.out.println(ex);
             }
