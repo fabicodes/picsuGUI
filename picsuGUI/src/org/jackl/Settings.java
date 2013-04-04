@@ -17,13 +17,24 @@ public class Settings {
             + "</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td>"
             + "</tr><tr><td><b>Website:</b></td><td><a href='http://fabian.jackl.org'>"
             + "http://fabian.jackl.org</a></td></tr>" + vers + "</table></html>";
-    private static int refreshDelay;
+    private static int refreshDelay = 100;
     private static int baudrate = 9600;
     private static int dataBits = SerialPort.DATABITS_8;
     private static int stopBits = SerialPort.STOPBITS_1;
     private static int parity = SerialPort.PARITY_ODD;
     private static int outputIndex = 1;
     private static int howManyValues = 10;
+    private static boolean displayAverage = false;
+    
+    public static boolean displayAverage()
+    {
+        return displayAverage;
+    }
+    
+    public static void displayAverage(boolean b)
+    {
+        Settings.displayAverage = b;
+    }
 
     public static int getHowManyValues() {
         return howManyValues;
