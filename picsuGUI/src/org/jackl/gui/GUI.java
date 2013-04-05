@@ -211,6 +211,8 @@ public class GUI extends javax.swing.JFrame {
         aboutMenu = new javax.swing.JMenu();
         infoMenuItem = new javax.swing.JMenuItem();
 
+        settingsDialog.setModal(true);
+
         jButton1.setText("Übernehmen");
 
         jButton2.setText("Abbrechen");
@@ -460,6 +462,11 @@ public class GUI extends javax.swing.JFrame {
         settingsMenu.add(averageCheckBoxMenuItem);
 
         advancedSettingsMenuItem.setText("Advanced Settings");
+        advancedSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advancedSettingsMenuItemActionPerformed(evt);
+            }
+        });
         settingsMenu.add(advancedSettingsMenuItem);
 
         menuBar.add(settingsMenu);
@@ -593,6 +600,10 @@ public class GUI extends javax.swing.JFrame {
     private void averageCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_averageCheckBoxMenuItemActionPerformed
         Settings.displayAverage(averageCheckBoxMenuItem.getState());
     }//GEN-LAST:event_averageCheckBoxMenuItemActionPerformed
+
+    private void advancedSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSettingsMenuItemActionPerformed
+        settingsDialog.setVisible(true);
+    }//GEN-LAST:event_advancedSettingsMenuItemActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel aLabel;

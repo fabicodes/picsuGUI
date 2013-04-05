@@ -5,6 +5,9 @@
     <Component class="javax.swing.ButtonGroup" name="comButtonGroup">
     </Component>
     <Container class="javax.swing.JDialog" name="settingsDialog">
+      <Properties>
+        <Property name="modal" type="boolean" value="true"/>
+      </Properties>
 
       <Layout>
         <DimensionLayout dim="0">
@@ -351,6 +354,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Advanced Settings"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="advancedSettingsMenuItemActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
