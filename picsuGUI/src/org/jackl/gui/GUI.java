@@ -344,6 +344,8 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        settingsDialog.pack();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PICSU GUI");
         setMaximizedBounds(new java.awt.Rectangle(0, 0, 0, 150));
