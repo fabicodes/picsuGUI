@@ -5,6 +5,7 @@
 package org.jackl.gui;
 
 import java.awt.Color;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.DefaultCaret;
 import org.jackl.Settings;
 import org.jackl.serial.*;
 
@@ -21,13 +23,14 @@ import org.jackl.serial.*;
  * @author Fabian
  */
 public class GUI extends javax.swing.JFrame {
-
+    
     private DecimalFormat f;
     private DecimalFormat s;
     private boolean voltageChanged;
     private SerialCommunicator serial;
     private double[] lastCurrentValues;
-
+    private PrintStream systemOutput = System.out;
+    
     public GUI() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -41,8 +44,10 @@ public class GUI extends javax.swing.JFrame {
         loadBar.setUI(new GradientPalletProgressBarUI(colors, distrib));
         refreshCOMPorts();
         enableComponents(false);
+        DefaultCaret caret = (DefaultCaret) consoleArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
-
+    
     private void initAttributes() {
         DecimalFormatSymbols decimalSymbol = new DecimalFormatSymbols(Locale.getDefault());
         decimalSymbol.setDecimalSeparator('.');
@@ -56,7 +61,7 @@ public class GUI extends javax.swing.JFrame {
             lastCurrentValues[i] = 0;
         }
     }
-
+    
     private int setVoltageSlider(double volt) {
         if (volt >= 0 && volt <= 12) //Filter valid Values
         {
@@ -67,7 +72,7 @@ public class GUI extends javax.swing.JFrame {
         }
         return -1;
     }
-
+    
     public boolean hasVoltageChanged() {
         if (voltageChanged) {
             voltageChanged = false;
@@ -76,7 +81,7 @@ public class GUI extends javax.swing.JFrame {
             return false;
         }
     }
-
+    
     public void setVoltage(double volt) {
         if (volt >= 0 && volt <= 12) {
             if (!voltageSlider.isFocusOwner()) {
@@ -86,14 +91,14 @@ public class GUI extends javax.swing.JFrame {
             voltageChanged = true;
         }
     }
-
+    
     public double getVoltage() {
         if (voltageSlider.getValue() * 5 / 100 == Double.parseDouble(voltageTextField.getText())) {
             return voltageSlider.getValue() * 5 / 100;
         }
         return -1;
     }
-
+    
     public void setCurrent(double current) {
         if (Settings.displayAverage()) {
             for (int i = lastCurrentValues.length - 1; i >= 1; i--) {
@@ -109,7 +114,7 @@ public class GUI extends javax.swing.JFrame {
         currentTextField.setText(f.format(current));
         loadBar.setValue((int) (current * 100));
     }
-
+    
     public void setOutput(boolean on) {
         if (on) {
             jTextField1.setBackground(Color.green);
@@ -117,7 +122,7 @@ public class GUI extends javax.swing.JFrame {
             jTextField1.setBackground(Color.red);
         }
     }
-
+    
     private void refreshCOMPorts() {
         LinkedList<String> coms = serial.getSerialPorts();
         while (comButtonGroup.getElements().hasMoreElements()) {
@@ -140,7 +145,7 @@ public class GUI extends javax.swing.JFrame {
             comSelectMenu.add(tmp);
         }
     }
-
+    
     private boolean connect() {
         if (comButtonGroup.getSelection() != null) {
             System.out.println(comButtonGroup.getSelection().getActionCommand());
@@ -150,21 +155,33 @@ public class GUI extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Can't connect because no COM Port is selected", "ERROR", JOptionPane.ERROR_MESSAGE);
         return false;
     }
-
+    
     private void enableComponents(boolean enable) {
         onOffToggleButton.setEnabled(enable);
         voltageSlider.setEnabled(enable);
     }
     
-    private void saveSettings()
-    {
+    private void saveSettings() {
         //do sth
     }
     
-    private void openSettings()
-    {
+    private void openSettings() {
         // set values
         settingsDialog.setVisible(true);
+    }
+    
+    private void redirectOutput(boolean redirect) {
+        if (redirect) {
+            PrintStream someOtherStream;
+            someOtherStream = new PrintStream(System.out) {
+                @Override
+                public void println(String s) {
+                    consoleArea.append(s);
+                }
+            };
+        } else {
+            System.setOut(systemOutput);
+        }
     }
 
     /**
@@ -181,7 +198,7 @@ public class GUI extends javax.swing.JFrame {
         settingsApplyButton = new javax.swing.JButton();
         settingsCancelButton = new javax.swing.JButton();
         settingsOkayButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        settingsPanel = new javax.swing.JPanel();
         refreshDelayComboBox = new javax.swing.JComboBox();
         howManyValuesLabel = new javax.swing.JLabel();
         baudrateLabel = new javax.swing.JLabel();
@@ -196,6 +213,9 @@ public class GUI extends javax.swing.JFrame {
         outputIndexComboBox = new javax.swing.JComboBox();
         stopBitsLabel = new javax.swing.JLabel();
         howManyValuesComboBox = new javax.swing.JComboBox();
+        consoleDialog = new javax.swing.JDialog();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        consoleArea = new javax.swing.JTextArea();
         voltageTextField = new javax.swing.JTextField();
         currentTextField = new javax.swing.JTextField();
         aLabel = new javax.swing.JLabel();
@@ -221,6 +241,7 @@ public class GUI extends javax.swing.JFrame {
         advancedSettingsMenuItem = new javax.swing.JMenuItem();
         aboutMenu = new javax.swing.JMenu();
         infoMenuItem = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         settingsDialog.setModal(true);
 
@@ -245,9 +266,11 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        settingsPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        refreshDelayComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        refreshDelayComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "50ms", "100ms", "150ms", "200ms", "250ms", "350ms", "450ms", "500ms", "650ms", "800ms", "1000ms" }));
+        refreshDelayComboBox.setSelectedIndex(1);
+        refreshDelayComboBox.setToolTipText("");
 
         howManyValuesLabel.setLabelFor(howManyValuesComboBox);
         howManyValuesLabel.setText("howManyValues");
@@ -258,90 +281,101 @@ public class GUI extends javax.swing.JFrame {
         refreshDelayLabel.setLabelFor(refreshDelayComboBox);
         refreshDelayLabel.setText("refreshDelay");
 
-        baudrateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        baudrateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "75", "300", "1200", "2400", "4800", "9600", "14400", "19200", "28800", "38400", "57600", "115200" }));
+        baudrateComboBox.setSelectedIndex(5);
+        baudrateComboBox.setToolTipText("");
 
-        dataBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        dataBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "5", "6", "7", "8" }));
+        dataBitsComboBox.setSelectedIndex(3);
+        dataBitsComboBox.setToolTipText("");
 
         parityLabel.setLabelFor(parityComboBox);
         parityLabel.setText("parity");
 
-        stopBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        stopBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "0", "1", "1.5", "2" }));
+        stopBitsComboBox.setSelectedIndex(1);
+        stopBitsComboBox.setToolTipText("");
 
         outputIndexLabel.setLabelFor(outputIndexComboBox);
         outputIndexLabel.setText("outputIndex");
 
-        parityComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        parityComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "none", "odd", "even", "mark", "space" }));
+        parityComboBox.setSelectedIndex(1);
+        parityComboBox.setToolTipText("");
 
         dataBitsLabel.setLabelFor(dataBitsComboBox);
         dataBitsLabel.setText("dataBits");
 
-        outputIndexComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        outputIndexComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4" }));
 
         stopBitsLabel.setLabelFor(stopBitsComboBox);
         stopBitsLabel.setText("stopBits");
 
-        howManyValuesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        howManyValuesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2", "3", "4", "5", "6", "7", "8", "9", "10", "12", "14", "16", "18", "20", "25", "30", "35", "40", "50" }));
+        howManyValuesComboBox.setSelectedIndex(8);
+        howManyValuesComboBox.setToolTipText("");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingsPanelLayout = new javax.swing.GroupLayout(settingsPanel);
+        settingsPanel.setLayout(settingsPanelLayout);
+        settingsPanelLayout.setHorizontalGroup(
+            settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(settingsPanelLayout.createSequentialGroup()
+                        .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(howManyValuesLabel)
+                            .addComponent(outputIndexLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(outputIndexComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(howManyValuesComboBox, 0, 61, Short.MAX_VALUE)))
+                    .addGroup(settingsPanelLayout.createSequentialGroup()
+                        .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(refreshDelayLabel)
                             .addComponent(baudrateLabel)
                             .addComponent(dataBitsLabel)
                             .addComponent(stopBitsLabel)
                             .addComponent(parityLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(parityComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(stopBitsComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dataBitsComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(baudrateComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(refreshDelayComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(outputIndexLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(outputIndexComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(howManyValuesLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(howManyValuesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(25, 25, 25)
+                        .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(refreshDelayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(parityComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(stopBitsComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(baudrateComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(dataBitsComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        settingsPanelLayout.setVerticalGroup(
+            settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(refreshDelayLabel)
                     .addComponent(refreshDelayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(baudrateLabel)
                     .addComponent(baudrateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dataBitsLabel)
                     .addComponent(dataBitsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(stopBitsLabel)
                     .addComponent(stopBitsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(parityLabel)
                     .addComponent(parityComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(outputIndexLabel)
                     .addComponent(outputIndexComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(howManyValuesLabel)
                     .addComponent(howManyValuesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -361,14 +395,14 @@ public class GUI extends javax.swing.JFrame {
                         .addComponent(settingsCancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(settingsApplyButton))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(settingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         settingsDialogLayout.setVerticalGroup(
             settingsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingsDialogLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addGroup(settingsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(settingsApplyButton)
@@ -379,10 +413,42 @@ public class GUI extends javax.swing.JFrame {
 
         settingsDialog.pack();
 
+        consoleDialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        consoleDialog.setTitle("Console");
+        consoleDialog.setBackground(new java.awt.Color(0, 0, 0));
+        consoleDialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                consoleDialogWindowOpened(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                consoleDialogWindowClosing(evt);
+            }
+        });
+
+        consoleArea.setEditable(false);
+        consoleArea.setBackground(new java.awt.Color(0, 0, 0));
+        consoleArea.setColumns(20);
+        consoleArea.setForeground(new java.awt.Color(255, 255, 255));
+        consoleArea.setRows(10);
+        consoleArea.setDragEnabled(true);
+        jScrollPane1.setViewportView(consoleArea);
+
+        javax.swing.GroupLayout consoleDialogLayout = new javax.swing.GroupLayout(consoleDialog.getContentPane());
+        consoleDialog.getContentPane().setLayout(consoleDialogLayout);
+        consoleDialogLayout.setHorizontalGroup(
+            consoleDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        consoleDialogLayout.setVerticalGroup(
+            consoleDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
+
+        settingsDialog.pack();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PICSU GUI");
         setMaximizedBounds(new java.awt.Rectangle(0, 0, 0, 150));
-        setMaximumSize(new java.awt.Dimension(2147483647, 150));
         setMinimumSize(new java.awt.Dimension(326, 150));
 
         voltageTextField.setEditable(false);
@@ -516,6 +582,14 @@ public class GUI extends javax.swing.JFrame {
         });
         aboutMenu.add(infoMenuItem);
 
+        jMenuItem1.setText("Console");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        aboutMenu.add(jMenuItem1);
+
         menuBar.add(aboutMenu);
 
         setJMenuBar(menuBar);
@@ -587,7 +661,7 @@ public class GUI extends javax.swing.JFrame {
             serial.send("[v:" + Settings.getOutputIndex() + ":" + s.format(value) + "]\r");
         }
     }//GEN-LAST:event_voltageSliderStateChanged
-
+    
     private void onOffToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onOffToggleButtonActionPerformed
         if (onOffToggleButton.isSelected()) {
             onOffToggleButton.setText("On ");
@@ -597,7 +671,7 @@ public class GUI extends javax.swing.JFrame {
             serial.send("[s:" + Settings.getOutputIndex() + "]\r");
         }
     }//GEN-LAST:event_onOffToggleButtonActionPerformed
-
+    
     private void voltageTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltageTextFieldActionPerformed
         String text = voltageTextField.getText().trim().replace(",", "."); // Replace , with . to fix compatibility with EU Comma
         if (text.contains(".")) {
@@ -608,15 +682,15 @@ public class GUI extends javax.swing.JFrame {
         voltageTextField.setText(f.format(setVoltageSlider(Float.parseFloat(text)) * 0.05));
         voltageChanged = true;
     }//GEN-LAST:event_voltageTextFieldActionPerformed
-
+    
     private void refreshCOMPortsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshCOMPortsMenuItemActionPerformed
         refreshCOMPorts();
     }//GEN-LAST:event_refreshCOMPortsMenuItemActionPerformed
-
+    
     private void infoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoMenuItemActionPerformed
         JOptionPane.showMessageDialog(this, Settings.aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_infoMenuItemActionPerformed
-
+    
     private void connectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectMenuItemActionPerformed
         if (!serial.isConnected()) {
             if (connect()) {
@@ -631,27 +705,39 @@ public class GUI extends javax.swing.JFrame {
             enableComponents(false);
         }
     }//GEN-LAST:event_connectMenuItemActionPerformed
-
+    
     private void averageCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_averageCheckBoxMenuItemActionPerformed
         Settings.displayAverage(averageCheckBoxMenuItem.getState());
     }//GEN-LAST:event_averageCheckBoxMenuItemActionPerformed
-
+    
     private void advancedSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSettingsMenuItemActionPerformed
         openSettings();
     }//GEN-LAST:event_advancedSettingsMenuItemActionPerformed
-
+    
     private void settingsOkayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsOkayButtonActionPerformed
         settingsDialog.setVisible(false);
         saveSettings();
     }//GEN-LAST:event_settingsOkayButtonActionPerformed
-
+    
     private void settingsCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsCancelButtonActionPerformed
         settingsDialog.setVisible(false);
     }//GEN-LAST:event_settingsCancelButtonActionPerformed
-
+    
     private void settingsApplyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsApplyButtonActionPerformed
         saveSettings();
     }//GEN-LAST:event_settingsApplyButtonActionPerformed
+    
+    private void consoleDialogWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_consoleDialogWindowClosing
+        redirectOutput(false);
+    }//GEN-LAST:event_consoleDialogWindowClosing
+    
+    private void consoleDialogWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_consoleDialogWindowOpened
+        redirectOutput(true);
+    }//GEN-LAST:event_consoleDialogWindowOpened
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        consoleDialog.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel aLabel;
@@ -665,6 +751,8 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator comSelectSeparator;
     private javax.swing.JPopupMenu.Separator comSettingsSeparator;
     private javax.swing.JMenuItem connectMenuItem;
+    private javax.swing.JTextArea consoleArea;
+    private javax.swing.JDialog consoleDialog;
     private javax.swing.JLabel currentLabel;
     private javax.swing.JTextField currentTextField;
     private javax.swing.JComboBox dataBitsComboBox;
@@ -672,10 +760,11 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JComboBox howManyValuesComboBox;
     private javax.swing.JLabel howManyValuesLabel;
     private javax.swing.JMenuItem infoMenuItem;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem4;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem5;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem6;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JProgressBar loadBar;
     private javax.swing.JMenuBar menuBar;
@@ -693,6 +782,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JDialog settingsDialog;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JButton settingsOkayButton;
+    private javax.swing.JPanel settingsPanel;
     private javax.swing.JComboBox stopBitsComboBox;
     private javax.swing.JLabel stopBitsLabel;
     private javax.swing.JLabel voltLabel;
