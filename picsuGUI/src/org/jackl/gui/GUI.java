@@ -155,6 +155,17 @@ public class GUI extends javax.swing.JFrame {
         onOffToggleButton.setEnabled(enable);
         voltageSlider.setEnabled(enable);
     }
+    
+    private void saveSettings()
+    {
+        //do sth
+    }
+    
+    private void openSettings()
+    {
+        // set values
+        settingsDialog.setVisible(true);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -167,24 +178,24 @@ public class GUI extends javax.swing.JFrame {
 
         comButtonGroup = new javax.swing.ButtonGroup();
         settingsDialog = new javax.swing.JDialog();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        settingsApplyButton = new javax.swing.JButton();
+        settingsCancelButton = new javax.swing.JButton();
+        settingsOkayButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jComboBox1 = new javax.swing.JComboBox();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox();
-        jComboBox3 = new javax.swing.JComboBox();
-        jLabel5 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox();
-        jLabel6 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox();
-        jLabel3 = new javax.swing.JLabel();
-        jComboBox6 = new javax.swing.JComboBox();
-        jLabel4 = new javax.swing.JLabel();
-        jComboBox7 = new javax.swing.JComboBox();
+        refreshDelayComboBox = new javax.swing.JComboBox();
+        howManyValuesLabel = new javax.swing.JLabel();
+        baudrateLabel = new javax.swing.JLabel();
+        refreshDelayLabel = new javax.swing.JLabel();
+        baudrateComboBox = new javax.swing.JComboBox();
+        dataBitsComboBox = new javax.swing.JComboBox();
+        parityLabel = new javax.swing.JLabel();
+        stopBitsComboBox = new javax.swing.JComboBox();
+        outputIndexLabel = new javax.swing.JLabel();
+        parityComboBox = new javax.swing.JComboBox();
+        dataBitsLabel = new javax.swing.JLabel();
+        outputIndexComboBox = new javax.swing.JComboBox();
+        stopBitsLabel = new javax.swing.JLabel();
+        howManyValuesComboBox = new javax.swing.JComboBox();
         voltageTextField = new javax.swing.JTextField();
         currentTextField = new javax.swing.JTextField();
         aLabel = new javax.swing.JLabel();
@@ -213,41 +224,63 @@ public class GUI extends javax.swing.JFrame {
 
         settingsDialog.setModal(true);
 
-        jButton1.setText("Übernehmen");
+        settingsApplyButton.setText("Apply");
+        settingsApplyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsApplyButtonActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Abbrechen");
+        settingsCancelButton.setText("Cancel");
+        settingsCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsCancelButtonActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("OK");
+        settingsOkayButton.setText("OK");
+        settingsOkayButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsOkayButtonActionPerformed(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        refreshDelayComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel7.setText("howManyValues");
+        howManyValuesLabel.setLabelFor(howManyValuesComboBox);
+        howManyValuesLabel.setText("howManyValues");
 
-        jLabel2.setText("baudrate");
+        baudrateLabel.setLabelFor(baudrateComboBox);
+        baudrateLabel.setText("baudrate");
 
-        jLabel1.setText("refreshDelay");
+        refreshDelayLabel.setLabelFor(refreshDelayComboBox);
+        refreshDelayLabel.setText("refreshDelay");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        baudrateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        dataBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel5.setText("parity");
+        parityLabel.setLabelFor(parityComboBox);
+        parityLabel.setText("parity");
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        stopBitsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel6.setText("outputIndex");
+        outputIndexLabel.setLabelFor(outputIndexComboBox);
+        outputIndexLabel.setText("outputIndex");
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        parityComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel3.setText("dataBits");
+        dataBitsLabel.setLabelFor(dataBitsComboBox);
+        dataBitsLabel.setText("dataBits");
 
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        outputIndexComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel4.setText("stopBits");
+        stopBitsLabel.setLabelFor(stopBitsComboBox);
+        stopBitsLabel.setText("stopBits");
 
-        jComboBox7.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        howManyValuesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -258,26 +291,26 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5))
+                            .addComponent(refreshDelayLabel)
+                            .addComponent(baudrateLabel)
+                            .addComponent(dataBitsLabel)
+                            .addComponent(stopBitsLabel)
+                            .addComponent(parityLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(parityComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(stopBitsComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dataBitsComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(baudrateComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(refreshDelayComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addComponent(outputIndexLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(outputIndexComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
+                        .addComponent(howManyValuesLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(howManyValuesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -285,32 +318,32 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(refreshDelayLabel)
+                    .addComponent(refreshDelayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(baudrateLabel)
+                    .addComponent(baudrateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dataBitsLabel)
+                    .addComponent(dataBitsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stopBitsLabel)
+                    .addComponent(stopBitsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(parityLabel)
+                    .addComponent(parityComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(outputIndexLabel)
+                    .addComponent(outputIndexComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(howManyValuesLabel)
+                    .addComponent(howManyValuesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -322,12 +355,12 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(settingsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(settingsDialogLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton3)
+                        .addGap(0, 54, Short.MAX_VALUE)
+                        .addComponent(settingsOkayButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
+                        .addComponent(settingsCancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
+                        .addComponent(settingsApplyButton))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -338,9 +371,9 @@ public class GUI extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addGroup(settingsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(settingsApplyButton)
+                    .addComponent(settingsCancelButton)
+                    .addComponent(settingsOkayButton))
                 .addContainerGap())
         );
 
@@ -604,14 +637,29 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_averageCheckBoxMenuItemActionPerformed
 
     private void advancedSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSettingsMenuItemActionPerformed
-        settingsDialog.setVisible(true);
+        openSettings();
     }//GEN-LAST:event_advancedSettingsMenuItemActionPerformed
+
+    private void settingsOkayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsOkayButtonActionPerformed
+        settingsDialog.setVisible(false);
+        saveSettings();
+    }//GEN-LAST:event_settingsOkayButtonActionPerformed
+
+    private void settingsCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsCancelButtonActionPerformed
+        settingsDialog.setVisible(false);
+    }//GEN-LAST:event_settingsCancelButtonActionPerformed
+
+    private void settingsApplyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsApplyButtonActionPerformed
+        saveSettings();
+    }//GEN-LAST:event_settingsApplyButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel aLabel;
     private javax.swing.JMenu aboutMenu;
     private javax.swing.JMenuItem advancedSettingsMenuItem;
     private javax.swing.JCheckBoxMenuItem averageCheckBoxMenuItem;
+    private javax.swing.JComboBox baudrateComboBox;
+    private javax.swing.JLabel baudrateLabel;
     private javax.swing.ButtonGroup comButtonGroup;
     private javax.swing.JMenu comSelectMenu;
     private javax.swing.JPopupMenu.Separator comSelectSeparator;
@@ -619,24 +667,11 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem connectMenuItem;
     private javax.swing.JLabel currentLabel;
     private javax.swing.JTextField currentTextField;
+    private javax.swing.JComboBox dataBitsComboBox;
+    private javax.swing.JLabel dataBitsLabel;
+    private javax.swing.JComboBox howManyValuesComboBox;
+    private javax.swing.JLabel howManyValuesLabel;
     private javax.swing.JMenuItem infoMenuItem;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JComboBox jComboBox3;
-    private javax.swing.JComboBox jComboBox4;
-    private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JComboBox jComboBox6;
-    private javax.swing.JComboBox jComboBox7;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem4;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem5;
@@ -645,10 +680,21 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JProgressBar loadBar;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JToggleButton onOffToggleButton;
+    private javax.swing.JComboBox outputIndexComboBox;
+    private javax.swing.JLabel outputIndexLabel;
+    private javax.swing.JComboBox parityComboBox;
+    private javax.swing.JLabel parityLabel;
     private javax.swing.JMenuItem refreshCOMPortsMenuItem;
+    private javax.swing.JComboBox refreshDelayComboBox;
+    private javax.swing.JLabel refreshDelayLabel;
     private javax.swing.JMenuItem saveCOMPortMenuItem;
+    private javax.swing.JButton settingsApplyButton;
+    private javax.swing.JButton settingsCancelButton;
     private javax.swing.JDialog settingsDialog;
     private javax.swing.JMenu settingsMenu;
+    private javax.swing.JButton settingsOkayButton;
+    private javax.swing.JComboBox stopBitsComboBox;
+    private javax.swing.JLabel stopBitsLabel;
     private javax.swing.JLabel voltLabel;
     private javax.swing.JLabel voltageLabel;
     private javax.swing.JSlider voltageSlider;
