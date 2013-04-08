@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
+import javax.swing.JOptionPane;
 import org.jackl.Settings;
 
 /**
@@ -41,6 +42,7 @@ public class SerialCommunicator {
         Boolean foundPort = false;
         if (connected != false) {
             System.out.println("There is already a connection established");
+            JOptionPane.showMessageDialog(null, "There is already a connection established", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         System.out.println("Opening Serial Port");
@@ -54,22 +56,26 @@ public class SerialCommunicator {
         }
         if (foundPort != true) {
             System.out.println("Port not found: " + portName);
+            JOptionPane.showMessageDialog(null, "Port not found: " + portName, "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         try {
             serialPort = (SerialPort) serialPortId.open("Open and send", 500);
         } catch (PortInUseException e) {
             System.out.println("Port in use");
+            JOptionPane.showMessageDialog(null, "Port in use", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         try {
             outputStream = serialPort.getOutputStream();
         } catch (IOException e) {
             System.out.println("No access to OutputStream");
+            JOptionPane.showMessageDialog(null, "No access to OutputStream", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         try {
             inputStream = serialPort.getInputStream();
         } catch (IOException e) {
             System.out.println("No access to InputStream");
+            JOptionPane.showMessageDialog(null, "No access to InputStream", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         try {
             serialPort.addEventListener(new serialPortEventListener());
@@ -81,6 +87,7 @@ public class SerialCommunicator {
             serialPort.setSerialPortParams(Settings.getBaudrate(), Settings.getDataBits(), Settings.getStopBits(), Settings.getParity());
         } catch (UnsupportedCommOperationException e) {
             System.out.println("Couldn't set SerialPort Parameter");
+            JOptionPane.showMessageDialog(null, "Couldn't set SerialPort Parameter", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
 
         connected = true;
@@ -110,7 +117,7 @@ public class SerialCommunicator {
         while (ports.hasMoreElements()) {
             serialPortId = (CommPortIdentifier) ports.nextElement();
             if (serialPortId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                System.out.println("Found:" + serialPortId.getName());
+                System.out.println("Found: " + serialPortId.getName());
                 out.add(serialPortId.getName());
             }
         }

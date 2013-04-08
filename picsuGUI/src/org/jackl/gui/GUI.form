@@ -115,12 +115,10 @@
                               <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="refreshDelaySpinner" max="32767" attributes="0"/>
-                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                      <Component id="parityComboBox" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="stopBitsComboBox" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="baudrateComboBox" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="dataBitsComboBox" alignment="0" max="32767" attributes="0"/>
-                                  </Group>
+                                  <Component id="parityComboBox" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="stopBitsComboBox" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="baudrateComboBox" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="dataBitsComboBox" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
@@ -377,10 +375,13 @@
     </Container>
     <Container class="javax.swing.JDialog" name="consoleDialog">
       <Properties>
-        <Property name="defaultCloseOperation" type="int" value="2"/>
         <Property name="title" type="java.lang.String" value="Console"/>
+        <Property name="alwaysOnTop" type="boolean" value="true"/>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="0" green="0" red="0" type="rgb"/>
+        </Property>
+        <Property name="type" type="java.awt.Window$Type" editor="org.netbeans.modules.form.editors.EnumEditor">
+          <Value id="UTILITY"/>
         </Property>
       </Properties>
       <Events>
@@ -388,7 +389,7 @@
         <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="consoleDialogWindowClosing"/>
       </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="settingsDialog.pack();"/>
+        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="consoleDialog.pack();"/>
       </AuxValues>
 
       <Layout>
@@ -460,8 +461,11 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="saveCOMPortMenuItem">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="jMenuItem1"/>
+                    <Property name="text" type="java.lang.String" value="Save Default Port"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="saveCOMPortMenuItemActionPerformed"/>
+                  </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JPopupMenu$Separator" name="comSelectSeparator">
                 </MenuItem>

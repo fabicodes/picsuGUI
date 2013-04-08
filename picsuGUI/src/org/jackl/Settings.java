@@ -5,6 +5,7 @@
 package org.jackl;
 
 import gnu.io.SerialPort;
+import org.jackl.gui.GUI;
 
 /**
  *
@@ -12,7 +13,7 @@ import gnu.io.SerialPort;
  */
 public class Settings {
 
-    public static final String vers = "<tr><td><b>Version:</b></td><td>0.98 Functional beta</td></tr>";
+    public static final String vers = "<tr><td><b>Version:</b></td><td>0.985 Another Test Build</td></tr>";
     public static final String aboutMessage = "<html><h1>Picsu GUI</h1><table><tr><td><b>Created by:"
             + "</b></td><td>Fabian Jackl</td></tr><tr><td><b>Contact:</b></td><td>fabian@jackl.org</td>"
             + "</tr><tr><td><b>Website:</b></td><td><a href='http://fabian.jackl.org'>"
@@ -25,14 +26,12 @@ public class Settings {
     private static int outputIndex = 1;
     private static int howManyValues = 10;
     private static boolean displayAverage = false;
-    
-    public static boolean displayAverage()
-    {
+
+    public static boolean displayAverage() {
         return displayAverage;
     }
-    
-    public static void displayAverage(boolean b)
-    {
+
+    public static void displayAverage(boolean b) {
         Settings.displayAverage = b;
     }
 
@@ -40,8 +39,13 @@ public class Settings {
         return howManyValues;
     }
 
-    public static void setHowManyValues(int howManyValues) {
+    public static void setHowManyValues(GUI gui ,int howManyValues) {
         Settings.howManyValues = howManyValues;
+        double[] lcv = new double[howManyValues];
+        for (int i = 0; i < lcv.length; i++) {
+            lcv[i] = 0;
+        }
+        gui.setLastCurrentValues(lcv);
     }
 
     public static int getOutputIndex() {

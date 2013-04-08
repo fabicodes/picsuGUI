@@ -4,6 +4,7 @@
  */
 package org.jackl.gui;
 
+import gnu.io.SerialPort;
 import java.awt.Color;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
@@ -29,7 +30,8 @@ public class GUI extends javax.swing.JFrame {
     private boolean voltageChanged;
     private SerialCommunicator serial;
     private double[] lastCurrentValues;
-    private PrintStream systemOutput = System.out;
+    private PrintStream systemOutput;
+    private PrintStream consoleOutput;
 
     public GUI() {
         try {
@@ -46,6 +48,7 @@ public class GUI extends javax.swing.JFrame {
         enableComponents(false);
         DefaultCaret caret = (DefaultCaret) consoleArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        this.setLocationRelativeTo(null);
     }
 
     private void initAttributes() {
@@ -60,6 +63,17 @@ public class GUI extends javax.swing.JFrame {
         for (int i = 0; i < lastCurrentValues.length; i++) {
             lastCurrentValues[i] = 0;
         }
+        systemOutput = System.out;
+        consoleOutput = new PrintStream(System.out) {
+            @Override
+            public void println(String s) {
+                consoleArea.append(s + "\n");
+            }
+        };
+    }
+
+    public void setLastCurrentValues(double[] lcv) {
+        lastCurrentValues = lcv;
     }
 
     private int setVoltageSlider(double volt) {
@@ -161,7 +175,7 @@ public class GUI extends javax.swing.JFrame {
         voltageSlider.setEnabled(enable);
     }
 
-    private void saveSettings() {
+    private void setSettings() {
         Settings.setRefreshDelay((int) refreshDelaySpinner.getValue());
         switch (baudrateComboBox.getSelectedIndex()) {
             case 0:
@@ -185,60 +199,83 @@ public class GUI extends javax.swing.JFrame {
         }
         switch (dataBitsComboBox.getSelectedIndex()) {
             case 0:
+                Settings.setDataBits(SerialPort.DATABITS_5);
                 break;
             case 1:
+                Settings.setDataBits(SerialPort.DATABITS_6);
                 break;
             case 2:
+                Settings.setDataBits(SerialPort.DATABITS_7);
                 break;
             case 3:
+                Settings.setDataBits(SerialPort.DATABITS_8);
                 break;
             default:
+                Settings.setDataBits(SerialPort.DATABITS_8);
                 break;
         }
         switch (stopBitsComboBox.getSelectedIndex()) {
             case 0:
+                Settings.setStopBits(0);
                 break;
             case 1:
+                Settings.setStopBits(SerialPort.STOPBITS_1);
                 break;
             case 2:
+                Settings.setStopBits(SerialPort.STOPBITS_1_5);
                 break;
             case 3:
+                Settings.setStopBits(SerialPort.STOPBITS_2);
                 break;
             default:
+                Settings.setStopBits(SerialPort.STOPBITS_1);
                 break;
         }
         switch (parityComboBox.getSelectedIndex()) {
             case 0:
+                Settings.setParity(SerialPort.PARITY_NONE);
                 break;
             case 1:
+                Settings.setParity(SerialPort.PARITY_ODD);
                 break;
             case 2:
+                Settings.setParity(SerialPort.PARITY_EVEN);
                 break;
             case 3:
+                Settings.setParity(SerialPort.PARITY_MARK);
                 break;
             case 4:
+                Settings.setParity(SerialPort.PARITY_SPACE);
                 break;
             default:
+                Settings.setParity(SerialPort.PARITY_ODD);
                 break;
         }
         switch (outputIndexComboBox.getSelectedIndex()) {
             case 0:
+                Settings.setOutputIndex(1);
                 break;
             case 1:
+                Settings.setOutputIndex(2);
                 break;
             case 2:
+                Settings.setOutputIndex(3);
                 break;
             case 3:
+                Settings.setOutputIndex(4);
                 break;
             default:
+                Settings.setOutputIndex(1);
                 break;
         }
-        Settings.setHowManyValues((int) howManyValuesSpinner.getValue());
+        Settings.setHowManyValues(this, (int) howManyValuesSpinner.getValue());
     }
 
     private void openSettings() {
         // set values
+        syncSettings();
         settingsDialog.setVisible(true);
+        settingsDialog.setLocationRelativeTo(null);
     }
 
     private void syncSettings() {
@@ -263,19 +300,66 @@ public class GUI extends javax.swing.JFrame {
                 baudrateComboBox.setSelectedIndex(0);
                 break;
         }
+        switch (Settings.getDataBits()) {
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+            default:
+                break;
+        }
+        switch (Settings.getStopBits()) {
+            case SerialPort.STOPBITS_1:
+                break;
+            case SerialPort.STOPBITS_1_5:
+                break;
+            case SerialPort.STOPBITS_2:
+                break;
+            default:
+                break;
+        }
+        switch (Settings.getParity()) {
+            case SerialPort.PARITY_NONE:
+                break;
+            case SerialPort.PARITY_ODD:
+                break;
+            case SerialPort.PARITY_EVEN:
+                break;
+            case SerialPort.PARITY_MARK:
+                break;
+            case SerialPort.PARITY_SPACE:
+                break;
+            default:
+                break;
+        }
+        switch (Settings.getOutputIndex()) {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            default:
+                break;
+        }
+        howManyValuesSpinner.setValue((Object) Settings.getHowManyValues());
     }
 
     private void redirectOutput(boolean redirect) {
         if (redirect) {
-            PrintStream someOtherStream;
-            someOtherStream = new PrintStream(System.out) {
-                @Override
-                public void println(String s) {
-                    consoleArea.append(s);
-                }
-            };
+            System.out.println("Redirecting Output to Console Window");
+            System.setOut(consoleOutput);
+            System.out.println("Output redirected to Console Window");
         } else {
+            System.out.println("Redirecting Output to System Output");
             System.setOut(systemOutput);
+            System.out.println("Output redirected to System Output");
         }
     }
 
@@ -460,11 +544,10 @@ public class GUI extends javax.swing.JFrame {
                         .addGap(25, 25, 25)
                         .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(refreshDelaySpinner)
-                            .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(parityComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(stopBitsComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(baudrateComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(dataBitsComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(parityComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(stopBitsComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(baudrateComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dataBitsComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(settingsPanelLayout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -555,9 +638,10 @@ public class GUI extends javax.swing.JFrame {
 
         settingsDialog.pack();
 
-        consoleDialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         consoleDialog.setTitle("Console");
+        consoleDialog.setAlwaysOnTop(true);
         consoleDialog.setBackground(new java.awt.Color(0, 0, 0));
+        consoleDialog.setType(java.awt.Window.Type.UTILITY);
         consoleDialog.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 consoleDialogWindowOpened(evt);
@@ -586,7 +670,7 @@ public class GUI extends javax.swing.JFrame {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
 
-        settingsDialog.pack();
+        consoleDialog.pack();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PICSU GUI");
@@ -674,7 +758,12 @@ public class GUI extends javax.swing.JFrame {
         });
         comSelectMenu.add(refreshCOMPortsMenuItem);
 
-        saveCOMPortMenuItem.setText("jMenuItem1");
+        saveCOMPortMenuItem.setText("Save Default Port");
+        saveCOMPortMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveCOMPortMenuItemActionPerformed(evt);
+            }
+        });
         comSelectMenu.add(saveCOMPortMenuItem);
         comSelectMenu.add(comSelectSeparator);
 
@@ -808,6 +897,7 @@ public class GUI extends javax.swing.JFrame {
         if (onOffToggleButton.isSelected()) {
             onOffToggleButton.setText("On ");
             serial.send("[r:" + Settings.getOutputIndex() + "]\r");
+            serial.send("[v:" + Settings.getOutputIndex() + ":" + s.format((voltageSlider.getValue() * 5) / 100.) + "]\r");
         } else {
             onOffToggleButton.setText("Off");
             serial.send("[s:" + Settings.getOutputIndex() + "]\r");
@@ -858,7 +948,7 @@ public class GUI extends javax.swing.JFrame {
 
     private void settingsOkayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsOkayButtonActionPerformed
         settingsDialog.setVisible(false);
-        saveSettings();
+        setSettings();
     }//GEN-LAST:event_settingsOkayButtonActionPerformed
 
     private void settingsCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsCancelButtonActionPerformed
@@ -866,7 +956,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_settingsCancelButtonActionPerformed
 
     private void settingsApplyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsApplyButtonActionPerformed
-        saveSettings();
+        setSettings();
     }//GEN-LAST:event_settingsApplyButtonActionPerformed
 
     private void consoleDialogWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_consoleDialogWindowClosing
@@ -878,12 +968,17 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_consoleDialogWindowOpened
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        consoleDialog.setLocationRelativeTo(null);
         consoleDialog.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void refreshDelaySpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_refreshDelaySpinnerStateChanged
         System.out.println((int) refreshDelaySpinner.getValue());
     }//GEN-LAST:event_refreshDelaySpinnerStateChanged
+
+    private void saveCOMPortMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCOMPortMenuItemActionPerformed
+        JOptionPane.showMessageDialog(this, "Nothing to see here yet\nFunction not implemented yet!", "Info", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_saveCOMPortMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel aLabel;
     private javax.swing.JMenu aboutMenu;
