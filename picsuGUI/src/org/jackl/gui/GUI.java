@@ -31,6 +31,8 @@ public class GUI extends javax.swing.JFrame {
     private SerialCommunicator serial;
     private double[] lastCurrentValues;
     private PrintStream systemOutput;
+    private PrintStream errOutput;
+    private PrintStream errCheckerOutput;
     private PrintStream consoleOutput;
 
     public GUI() {
@@ -64,12 +66,32 @@ public class GUI extends javax.swing.JFrame {
             lastCurrentValues[i] = 0;
         }
         systemOutput = System.out;
+        errOutput = System.err;
         consoleOutput = new PrintStream(System.out) {
             @Override
             public void println(String s) {
                 consoleArea.append(s + "\n");
             }
         };
+        errCheckerOutput = new PrintStream(System.err) {
+            @Override
+            public void println(String s) {
+                errOutput.println(s);
+                if (s.contains("no rxtxSerial in java.library.path thrown while loading gnu.io")) {
+                    JOptionPane.showMessageDialog(null, "No suitable RXTX Binary found in library path", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                }
+                if (s.contains("Can't load IA 32-bit .dll on a AMD 64-bit platform")) {
+                    JOptionPane.showMessageDialog(null, "You are using x64 Java, so please use the x64 binary then", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                }
+                if (s.contains("Can't load AMD 64-bit .dll on a IA 32-bit platform")) {
+                    JOptionPane.showMessageDialog(null, "You are using x86 Java, so please use the x86 binary then", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                }
+            }
+        };
+        System.setErr(errCheckerOutput);
     }
 
     public void setLastCurrentValues(double[] lcv) {
